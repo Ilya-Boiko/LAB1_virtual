@@ -11,13 +11,13 @@ public class Trigger_test : MonoBehaviour
 
     private void Update()
     {
-        // Increment timer if outside
+        
         if (timer > 0f)
         {
             timer += Time.deltaTime; 
         }
 
-        // Respawn after 2 seconds outside the zone
+        
         if (timer >= 2f)
         
         {
@@ -37,16 +37,9 @@ public class Trigger_test : MonoBehaviour
 
     private void OnTriggerExit(Collider collision)
     {
-        // Debug.Log("вышел!");
-        // Debug.Log(collision.name);
-        // Debug.Log(objToSpawn.name);
 
-        Debug.Log(collision.gameObject.name);
-        // Check if the exiting object is the one we're tracking
         if (collision.gameObject.name == "Bowling Ball" || collision.gameObject.name == "Bowling Ball(Clone)")
         {
-            
-            // Start the timer when the object exits
             timer = 0.1f; 
         }
     }
