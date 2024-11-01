@@ -1,54 +1,62 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MoveP : MonoBehaviour
 {
-    public float Speed = 3f;
-    private Vector3 initialPosition;
-    private bool isMoving = true; 
-    private float pauseTimer = 2f; 
-    private Vector3 moveDirection = Vector3.forward;
+    public float speed = 2f; // Скорость движения
+    public float distance = 5f; // Расстояние, которое платформа будет проходить
+    
+    private Vector3 startPosition;
+    private Vector3 targetPosition;
+    private bool isMoving = true;
+    private float pauseTime = 2f; // Время паузы
+    private float pauseTimer = 0f; // Таймер паузы
+    private bool isPaused = false;
 
-    private void Start()
+    void Start()
     {
-        initialPosition = transform.position; 
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        collision.transform.parent = transform;
-    }
-
-    private void OnCollisionExit(Collision collision)
-    {
-        collision.transform.parent = null;
+        startPosition = transform.position;
+        targetPosition = startPosition + new Vector3(0, 0, distance);
     }
 
     void Update()
     {
-        // Если платформа должна быть остановлена
-        if (!isMoving)
+        if (isMoving)
         {
-            pauseTimer -= Time.deltaTime;
-            if (pauseTimer <= 0)
-            {
-                pauseTimer = 2f; 
-                isMoving = true; // Возобновляем движение после паузы
-            }
-            return; 
+            MovePlatform();
         }
-
-        // Проверка границ и смена направления
-        if (transform.position.z >= 17.5f || transform.position.z <= initialPosition.z)
+        else if (isPaused)
         {
-            // Меняем направление движения
-            moveDirection = -moveDirection;
-            isMoving = false; // Останавливаем движение для паузы
-            pauseTimer = 2f; // Сбрасываем таймер паузы
+            PauseMovement();
         }
+    }
 
-        Vector3 movement = moveDirection * Speed * Time.deltaTime; // Включаем скорость в направление движения
-        transform.position += movement; // Перемещаем платформу
+    private void MovePlatform()
+    {
+        float step = speed * Time.deltaTime;
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, step);
+        
+        // Проверяем достигли ли мы цели
+        if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
+        {
+            // Меняем направление
+            isMoving = false;
+            isPaused = true;
+
+            // Меняем цель на противоположную
+            targetPosition = targetPosition == startPosition ? startPosition + new Vector3(0, 0, distance) : startPosition;
+        }
+    }
+
+    private void PauseMovement()
+    {
+        pauseTimer += Time.deltaTime;
+        
+        // Если время паузы прошло, продолжаем движение
+        if (pauseTimer >= pauseTime)
+        {
+            isPaused = false;
+            isMoving = true;
+            pauseTimer = 0f; // Сбрасываем таймер
+        }
     }
 }
